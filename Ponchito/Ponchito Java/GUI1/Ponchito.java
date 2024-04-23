@@ -1,5 +1,3 @@
-package GUI1;
-
 import java.sql.*;
 import java.io.*;
 

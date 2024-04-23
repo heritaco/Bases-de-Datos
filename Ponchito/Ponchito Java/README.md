@@ -7,6 +7,14 @@ PD: Los dos GUI se ven horribles, muévanle lo que quieran
 
 PD2: SE VE GENIAL ASI HJAHJHAJ q tontería pero real es útil saber que le movimos
 
+Deben poner esto en la terminal D:
+
+cd "c:\Users\herie\OneDrive\Documentos\GitHub\Bases de Datos\Ponchito\Ponchito Java\"
+
+javac GUI2\Ponchito.java
+
+java GUI2.Ponchito
+
 ---
 
 22/04: 20:00
