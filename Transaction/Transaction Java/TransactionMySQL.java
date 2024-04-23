@@ -152,7 +152,7 @@ public class TransactionMySQL {
 			System.exit(1);
 		}
 
-		Ponchito transaction = new Ponchito();
+		TransactionMySQL transaction = new TransactionMySQL();
 
 		while (true)
 
