@@ -1,3 +1,5 @@
+package GUI2;
+
 import java.sql.*;
 import java.io.*;
 
@@ -41,18 +43,23 @@ public class Ponchito {
 		}
 	}
 
-	private void query(String statement) throws SQLException {
-
+	public String query(String statement) throws SQLException {
 		ResultSet rset = stmt.executeQuery(statement);
-		System.out.println("Results:");
-		dumpResultSet(rset);
-
-		System.out.println();
+		StringBuilder results = new StringBuilder();
+		results.append("Results:\n");
+		while (rset.next()) {
+			ResultSetMetaData rsetmd = rset.getMetaData();
+			int i = rsetmd.getColumnCount();
+			for (int j = 1; j <= i; j++) {
+				results.append(rset.getString(j)).append("\t");
+			}
+			results.append("\n");
+		}
 		rset.close();
+		return results.toString();
 	}
 
-	private void close() throws SQLException {
-
+	public void close() throws SQLException {
 		stmt.close();
 		conn.close();
 	}
