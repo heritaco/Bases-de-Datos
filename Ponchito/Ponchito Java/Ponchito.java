@@ -174,4 +174,20 @@ public class Ponchito {
 
 		transaction.close();
 	}
+
+	public boolean addClient(String nombre, String apellido, String circuito, String salida) {
+		String sql = "INSERT INTO Clientes (nombre, apellido, identificador_circuito, fecha_salida) VALUES (?, ?, ?, ?)";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, nombre);
+			pstmt.setString(2, apellido);
+			pstmt.setString(3, circuito);
+			pstmt.setString(4, salida);
+			int rowsAffected = pstmt.executeUpdate();
+			return rowsAffected > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

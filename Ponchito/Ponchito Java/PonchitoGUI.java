@@ -1,5 +1,4 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
@@ -11,20 +10,18 @@ public class PonchitoGUI {
     private Ponchito ponchito;
     private JLabel welcomeLabel;
 
-    public PonchitoGUI() {
-        panel1 = new JPanel(new GridLayout(7, 1, 10, 10)); // Use a GridLayout
-        panel1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add some padding
-        panel1.setBackground(Color.WHITE); // Change the background color
+    private JButton adminButton;
+    private JDialog newUserDialog;
+    private JTextField nombreField, apellidoField, circuitoField, salidaField;
+    private String adminPassword = "admin123"; // You should store passwords securely, not like this
 
+    public PonchitoGUI() {
+        panel1 = new JPanel();
         textArea = new JTextArea(15, 30);
-        textArea.setFont(new Font("Arial", Font.PLAIN, 14)); // Change the font
-        textArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add some padding
         panel1.add(textArea);
 
-        welcomeLabel = new JLabel("Welcome to Ponchito Viajes!!", SwingConstants.CENTER); // Center the text
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Change the font
-        welcomeLabel.setForeground(Color.BLACK); // Change the text color
-        panel1.add(welcomeLabel);
+        welcomeLabel = new JLabel("Welcome to Ponchito Viajes!!");
+        panel1.add(welcomeLabel, BorderLayout.NORTH);
 
         try {
             ponchito = new Ponchito();
@@ -44,14 +41,62 @@ public class PonchitoGUI {
         panel1.add(button2);
         panel1.add(button3);
         panel1.add(button4);
+
         panel1.add(button5);
+        adminButton = new JButton("Admin");
+        adminButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String password = JOptionPane.showInputDialog("Enter password");
+                if (adminPassword.equals(password)) {
+                    openNewUserDialog();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Incorrect password");
+                }
+            }
+        });
+        panel1.add(adminButton);
+    }
+
+    private JTextField addField(JDialog dialog, String labelText) {
+        dialog.add(new JLabel(labelText));
+        JTextField field = new JTextField();
+        dialog.add(field);
+        return field;
+    }
+
+    private void openNewUserDialog() {
+        newUserDialog = new JDialog();
+        newUserDialog.setTitle("New User");
+        newUserDialog.setLayout(new GridLayout(5, 2));
+
+        nombreField = addField(newUserDialog, "Nombre:");
+        apellidoField = addField(newUserDialog, "Apellido:");
+        circuitoField = addField(newUserDialog, "Circuito:");
+        salidaField = addField(newUserDialog, "Salida:");
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            try {
+                Ponchito db = new Ponchito();
+                db.addClient(nombreField.getText(), apellidoField.getText(), circuitoField.getText(),
+                        salidaField.getText());
+                newUserDialog.dispose();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        newUserDialog.add(saveButton);
+
+        newUserDialog.pack();
+        newUserDialog.setVisible(true);
     }
 
     private JButton createButton(String text, String query) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(Color.WHITE);
-        button.setForeground(Color.BLACK);
+        button.setFont(new Font("Arial", Font.BOLD, 14)); // Set the font
+        button.setBackground(Color.WHITE); // Set the background color
+        button.setForeground(Color.BLACK); // Set the text color
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

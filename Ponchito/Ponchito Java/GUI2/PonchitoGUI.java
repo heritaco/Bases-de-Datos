@@ -1,10 +1,11 @@
+
 import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
 
-public class PonchitoGUI { 
+public class PonchitoGUI {
     private JButton button0, button1, button2, button3, button4, button5;
     private JPanel panel1;
     private JTextArea textArea;

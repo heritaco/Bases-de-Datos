@@ -1,3 +1,19 @@
+29/24 4:30 AM(?)
+
+Agregue la tabla clientes a la db
+
+Ya agregué los triggers a la db
+
+Regrese a la GUI1
+
+Agregué más lugares a la DB
+
+Agruegué un boton de admin para agregar clientes a la DB (no se si funciona (la contraseña es admin123))
+
+!!FALTAN ETAPAS, MUCHAS ETAPAS!!
+
+---
+
 23/04 12:00
 
 Agregué un GUI, dos. Me ayudó Chat. Creo que hice el de mostrar
