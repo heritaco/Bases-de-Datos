@@ -4,8 +4,6 @@ CREATE SCHEMA `ponchito`;
 
 USE `ponchito`;
 
-USE `ponchito`;
-
 CREATE TABLE Ciudad (
     nombre CHAR(12),
     país CHAR(12),
@@ -23,7 +21,20 @@ CREATE TABLE LugarAvisitar (
     FOREIGN KEY (ciudad, país) REFERENCES Ciudad(nombre, país)
 );
 
-CREATE TABLE Circuito (
+CREATE TABLE Hotel ( -- Se hospedan en cuartos individuales
+    nombre CHAR(12),
+    ciudad CHAR(12),
+    país CHAR(12),
+    dirección CHAR(20),
+    numCuartos INT,
+    precioCuarto INT,
+    precioDesayuno INT,
+    PRIMARY KEY (ciudad, país),  -- Solo tenemos convenio con un hotel en cada ciudad, se incluyen actividades (en hoteles) con viajes ponchito y descuentos en los mismos (como les llevamoms clientes seguido, nos hacen descuentoe) 
+    FOREIGN KEY (ciudad, país) REFERENCES Ciudad(nombre, país)
+);
+
+
+CREATE TABLE Circuito ( 
     identificador CHAR(5),
     descripción CHAR(20),
     ciudadSalida CHAR(12),
@@ -37,6 +48,19 @@ CREATE TABLE Circuito (
     FOREIGN KEY (ciudadLlegada, paísLlegada) REFERENCES Ciudad(nombre, país)
 );
 
+CREATE TABLE Etapa (
+    identificador CHAR(5),
+    orden INT,
+    nombreLugar CHAR(12),
+    ciudad CHAR(12),
+    país CHAR(12),
+    duración INT,
+    precio INT,
+    PRIMARY KEY (identificador, orden),
+    FOREIGN KEY (nombreLugar, ciudad, país) REFERENCES LugarAvisitar(nombre, ciudad, país),
+    FOREIGN KEY (identificador) REFERENCES Circuito(identificador)
+);
+
 CREATE TABLE FechaCircuito (
     identificador CHAR(5),
     fechaSalida DATE,
@@ -45,29 +69,7 @@ CREATE TABLE FechaCircuito (
     FOREIGN KEY (identificador) REFERENCES Circuito(identificador)
 );
 
-CREATE TABLE Etapa (
-    identificador CHAR(5),
-    orden INT,
-    nombreLugar CHAR(12),
-    ciudad CHAR(12),
-    país CHAR(12),
-    duración INT,
-    PRIMARY KEY (identificador, orden),
-    FOREIGN KEY (nombreLugar, ciudad, país) REFERENCES LugarAvisitar(nombre, ciudad, país),
-    FOREIGN KEY (identificador) REFERENCES Circuito(identificador)
-);
 
-CREATE TABLE Hotel (
-    nombre CHAR(12),
-    ciudad CHAR(12),
-    país CHAR(12),
-    dirección CHAR(20),
-    numCuartos INT,
-    precioCuarto INT,
-    precioDesayuno INT,
-    PRIMARY KEY (nombre, ciudad, país),
-    FOREIGN KEY (ciudad, país) REFERENCES Ciudad(nombre, país)
-);
 
 CREATE TABLE Cliente (
     idCliente INT AUTO_INCREMENT PRIMARY KEY, 
@@ -84,28 +86,26 @@ CREATE TABLE Simulacion (
     numeroSimulacion INT AUTO_INCREMENT PRIMARY KEY,
     idCliente INT, 
     circuito CHAR(5),
-    precio INT,
     FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente),
     FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
 );
 
-CREATE TABLE OpcionReservacion (
-    numeroSimulacion INT,
-    lugaravisitar CHAR(12),
-    identificadorCircuito CHAR(5),
-    nombreHotel CHAR(12),
-    FOREIGN KEY (numeroSimulacion) REFERENCES Simulacion(numeroSimulacion),
-    FOREIGN KEY (lugaravisitar) REFERENCES LugarAvisitar(nombre),
-    FOREIGN KEY (nombreHotel) REFERENCES Hotel(nombre)
+CREATE TABLE Reservacion (
+    numeroReservacion INT AUTO_INCREMENT PRIMARY KEY,
+    idcliente INT,
+    circuito CHAR(5),
+    FOREIGN KEY (idcliente) REFERENCES Cliente(idCliente),
+    FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
 );
 
-CREATE TABLE Reservacion (
-    numeroSimulacion INT,
-    fechaReservacion DATE,
-    idcliente INT,
-    FOREIGN KEY (numeroSimulacion) REFERENCES Simulacion(numeroSimulacion),
-    FOREIGN KEY (idcliente) REFERENCES Cliente(idCliente)
-);
+
+-- Delete simulations after two days
+CREATE EVENT delete_old_simulations
+ON SCHEDULE EVERY 1 DAY
+STARTS NOW()
+DO
+  DELETE FROM Simulacion
+  WHERE created_at < NOW() - INTERVAL 2 DAY;
 
 
 
