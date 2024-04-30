@@ -4,6 +4,8 @@ CREATE SCHEMA `ponchito`;
 
 USE `ponchito`;
 
+USE `ponchito`;
+
 CREATE TABLE Ciudad (
     nombre CHAR(12),
     país CHAR(12),
@@ -39,10 +41,9 @@ CREATE TABLE FechaCircuito (
     identificador CHAR(5),
     fechaSalida DATE,
     nbPersonas INT,
-    PRIMARY KEY (identificador, fechaSalida),
+    PRIMARY KEY (identificador, fechaSalida, nbpersonas),
     FOREIGN KEY (identificador) REFERENCES Circuito(identificador)
 );
-
 
 CREATE TABLE Etapa (
     identificador CHAR(5),
@@ -68,30 +69,44 @@ CREATE TABLE Hotel (
     FOREIGN KEY (ciudad, país) REFERENCES Ciudad(nombre, país)
 );
 
-CREATE TABLE Clientes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Cliente (
+    idCliente INT AUTO_INCREMENT PRIMARY KEY, 
     nombre CHAR(50),
-    apellido CHAR(50),
-    identificador_circuito CHAR(5),
-    fecha_salida DATE,
-    FOREIGN KEY (identificador_circuito, fecha_salida) REFERENCES FechaCircuito(identificador, fechaSalida)
+    apellidoPaterno CHAR(50),
+    apellidoMaterno CHAR(50),
+    fechaNacimiento DATE,
+    tipo CHAR(10) CHECK (tipo IN ('compañía', 'grupo', 'individual')),
+    agenciaEmpleado BOOLEAN,
+    añoRegistro INT
 );
 
+CREATE TABLE Simulacion (
+    numeroSimulacion INT AUTO_INCREMENT PRIMARY KEY,
+    idCliente INT, 
+    circuito CHAR(5),
+    precio INT,
+    FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente),
+    FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
+);
 
-DELIMITER //
+CREATE TABLE OpcionReservacion (
+    numeroSimulacion INT,
+    lugaravisitar CHAR(12),
+    identificadorCircuito CHAR(5),
+    nombreHotel CHAR(12),
+    FOREIGN KEY (numeroSimulacion) REFERENCES Simulacion(numeroSimulacion),
+    FOREIGN KEY (lugaravisitar) REFERENCES LugarAvisitar(nombre),
+    FOREIGN KEY (nombreHotel) REFERENCES Hotel(nombre)
+);
 
-CREATE TRIGGER decrementar_nbPersonas
-AFTER INSERT ON Clientes
-FOR EACH ROW
-BEGIN
-    UPDATE FechaCircuito
-    SET nbPersonas = nbPersonas - 1
-    WHERE identificador = NEW.identificador_circuito AND fechaSalida = NEW.fecha_salida;
-END;
+CREATE TABLE Reservacion (
+    numeroSimulacion INT,
+    fechaReservacion DATE,
+    idcliente INT,
+    FOREIGN KEY (numeroSimulacion) REFERENCES Simulacion(numeroSimulacion),
+    FOREIGN KEY (idcliente) REFERENCES Cliente(idCliente)
+);
 
-//
-
-DELIMITER ;
 
 
 
@@ -764,7 +779,7 @@ INSERT INTO FechaCircuito (identificador, fechaSalida, nbPersonas) VALUES
 ('CIR50', '2024-10-05', 10),
 ('CIR50', '2024-11-20', 20),
 ('CIR50', '2024-07-10', 10),
-('CIR50', '2024-08-05', 25):
+('CIR50', '2024-08-05', 25);
 
 INSERT INTO Etapa (identificador, orden, nombreLugar, ciudad, país, duración) VALUES
 ('CIR01', 1, 'Bellas Artes', 'CDMX', 'México', 1),
