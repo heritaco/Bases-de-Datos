@@ -13,19 +13,18 @@ public class Ponchito {
 	static final String USER = "root"; // el nombre de usuario
 	static final String PASSWD = "1234";// el password del usuario
 
-	public Ponchito() throws SQLException, Exception {
-
-		// this will load the MySQL driver, each DB has its own driver
-		Class.forName("com.mysql.jdbc.Driver");
-		System.out.print("Connecting to the database... ");
-
-		// setup the connection with the DB
-		conn = DriverManager.getConnection(URL + BD, USER, PASSWD);
-		System.out.println("connected\n\n");
-
-		conn.setAutoCommit(false); // inicio de la 1a transacción
-		stmt = conn.createStatement();
-		in = new BufferedReader(new InputStreamReader(System.in));
+	public Ponchito() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			System.out.print("Connecting to the database... ");
+			conn = DriverManager.getConnection(URL + BD, USER, PASSWD);
+			System.out.println("connected\n\n");
+			conn.setAutoCommit(false);
+			stmt = conn.createStatement();
+			in = new BufferedReader(new InputStreamReader(System.in));
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void dumpResultSet(ResultSet rset) throws SQLException {
@@ -175,14 +174,17 @@ public class Ponchito {
 		transaction.close();
 	}
 
-	public boolean addClient(String nombre, String apellido, String circuito, String salida) {
-		String sql = "INSERT INTO Clientes (nombre, apellido, identificador_circuito, fecha_salida) VALUES (?, ?, ?, ?)";
+	public boolean addClient(String nombre, String apellidoPaterno, String apellidoMaterno,
+			String tipo, boolean agenciaEmpleado, int añoRegistro) {
+		String sql = "INSERT INTO Cliente (nombre, apellidoPaterno, apellidoMaterno, tipo, agenciaEmpleado, añoRegistro) VALUES (?, ?, ?, ?, ?, ?)";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, nombre);
-			pstmt.setString(2, apellido);
-			pstmt.setString(3, circuito);
-			pstmt.setString(4, salida);
+			pstmt.setString(2, apellidoPaterno);
+			pstmt.setString(3, apellidoMaterno);
+			pstmt.setString(4, tipo);
+			pstmt.setBoolean(5, agenciaEmpleado);
+			pstmt.setInt(6, añoRegistro);
 			int rowsAffected = pstmt.executeUpdate();
 			return rowsAffected > 0;
 		} catch (SQLException e) {
@@ -190,4 +192,5 @@ public class Ponchito {
 			return false;
 		}
 	}
+
 }

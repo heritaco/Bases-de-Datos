@@ -76,7 +76,6 @@ CREATE TABLE Cliente (
     nombre CHAR(50),
     apellidoPaterno CHAR(50),
     apellidoMaterno CHAR(50),
-    fechaNacimiento DATE,
     tipo CHAR(10) CHECK (tipo IN ('compañía', 'grupo', 'individual')),
     agenciaEmpleado BOOLEAN,
     añoRegistro INT

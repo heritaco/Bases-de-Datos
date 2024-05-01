@@ -12,13 +12,17 @@ public class PonchitoGUI {
 
     private JButton adminButton;
     private JDialog newUserDialog;
-    private JTextField nombreField, apellidoField, circuitoField, salidaField;
+    private JTextField nombreField, apellidopField, apellidomField, tipo, agenciaEmpleado, añoRegistro;
     private String adminPassword = "admin123"; // You should store passwords securely, not like this
 
     public PonchitoGUI() {
+
         panel1 = new JPanel();
         textArea = new JTextArea(15, 30);
         panel1.add(textArea);
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        panel1.add(scrollPane);
 
         welcomeLabel = new JLabel("Welcome to Ponchito Viajes!!");
         panel1.add(welcomeLabel, BorderLayout.NORTH);
@@ -68,26 +72,55 @@ public class PonchitoGUI {
     private void openNewUserDialog() {
         newUserDialog = new JDialog();
         newUserDialog.setTitle("New User");
-        newUserDialog.setLayout(new GridLayout(5, 2));
+        newUserDialog.setLayout(new GridLayout(7, 2));
 
         nombreField = addField(newUserDialog, "Nombre:");
-        apellidoField = addField(newUserDialog, "Apellido:");
-        circuitoField = addField(newUserDialog, "Circuito:");
-        salidaField = addField(newUserDialog, "Salida:");
+        apellidopField = addField(newUserDialog, "Apellido Paterno:");
+        apellidomField = addField(newUserDialog, "Apellido Materno:");
+
+        String[] tipos = { "compañía", "grupo", "individual" };
+        JComboBox<String> tipo = new JComboBox<>(tipos);
+        newUserDialog.add(new JLabel("Tipo:"));
+        newUserDialog.add(tipo);
+
+        // Use a JComboBox for agenciaEmpleado
+        String[] booleanOptions = { "true", "false" };
+        JComboBox<String> agenciaEmpleado = new JComboBox<>(booleanOptions);
+        newUserDialog.add(new JLabel("Agencia Empleado:"));
+        newUserDialog.add(agenciaEmpleado);
+
+        añoRegistro = addField(newUserDialog, "Año de registro:");
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
-                Ponchito db = new Ponchito();
-                db.addClient(nombreField.getText(), apellidoField.getText(), circuitoField.getText(),
-                        salidaField.getText());
-                newUserDialog.dispose();
+                // Parse the selected option to a boolean
+                boolean agenciaEmpleadoBool = Boolean.parseBoolean((String) agenciaEmpleado.getSelectedItem());
+
+                String tipoSelected = (String) tipo.getSelectedItem();
+
+                boolean clientAdded = ponchito.addClient(
+                        nombreField.getText(),
+                        apellidopField.getText(),
+                        apellidomField.getText(),
+                        tipoSelected,
+                        agenciaEmpleadoBool,
+                        Integer.parseInt(añoRegistro.getText()));
+
+                if (clientAdded) {
+                    JOptionPane.showMessageDialog(null, "Client added successfully");
+                } else {
+                    JOptionPane.showMessageDialog(null, "An error occurred while adding the client to the database");
+                }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number for 'Año de registro'");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
-        newUserDialog.add(saveButton);
 
+        newUserDialog.add(saveButton);
         newUserDialog.pack();
         newUserDialog.setVisible(true);
     }
