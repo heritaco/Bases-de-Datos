@@ -21,6 +21,19 @@ public class Ponchito {
 		}
 	}
 
+	public boolean checkCredentials(String id, String password) {
+		try {
+			PreparedStatement statement = conn.prepareStatement("SELECT * FROM clientes WHERE id = ? AND password = ?");
+			statement.setString(1, id);
+			statement.setString(2, password);
+			ResultSet resultSet = statement.executeQuery();
+			return resultSet.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	public String query(String statement) throws SQLException {
 		ResultSet rset = stmt.executeQuery(statement);
 		StringBuilder results = new StringBuilder();

@@ -62,14 +62,18 @@ public class InterfazGlobal {
     }
 
     private static boolean verificarCliente(String palabraClave) {
-        // Implementación de la lógica para verificar la palabra clave de un cliente en la base de datos
-        // Aquí se puede realizar una consulta a la base de datos para verificar si la palabra clave es válida
+        // Implementación de la lógica para verificar la palabra clave de un cliente en
+        // la base de datos
+        // Aquí se puede realizar una consulta a la base de datos para verificar si la
+        // palabra clave es válida
         return "clavecliente".equals(palabraClave); // Solo para propósitos de demostración
     }
 
     private static boolean verificarTrabajador(String palabraClave) {
-        // Implementación de la lógica para verificar la palabra clave de un trabajador en la base de datos
-        // Aquí se puede realizar una consulta a la base de datos para verificar si la palabra clave es válida
+        // Implementación de la lógica para verificar la palabra clave de un trabajador
+        // en la base de datos
+        // Aquí se puede realizar una consulta a la base de datos para verificar si la
+        // palabra clave es válida
         return "clavetrabajador".equals(palabraClave); // Solo para propósitos de demostración
     }
 

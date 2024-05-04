@@ -1,7 +1,11 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.awt.image.BufferedImage;
 
 public class PonchitoGUI {
     private JButton button0, button1, button2, button3, button4, button5;
@@ -11,9 +15,10 @@ public class PonchitoGUI {
     private JLabel welcomeLabel;
     private JDialog newUserDialog;
     private JTextField nombreField, apellidopField, apellidomField, añoRegistro;
-    private JButton adminButton;
-    private String adminPassword = "admin123"; // You should store passwords securely, not like this
+    private JButton adminButton, reservarButton;
+    private String adminPassword = "admin123";
 
+    // Constructor
     public PonchitoGUI() {
 
         panel1 = new JPanel();
@@ -47,20 +52,60 @@ public class PonchitoGUI {
 
         panel1.add(button5);
         adminButton = new JButton("Admin");
+        reservarButton = new JButton("Reservar");
+
         adminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String password = JOptionPane.showInputDialog("Enter admin password:");
+                String password = JOptionPane.showInputDialog("Contraseña de administrador:");
                 if (adminPassword.equals(password)) {
                     new AdminGUI().setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Incorrect password.");
+                    JOptionPane.showMessageDialog(null, "Contraseña incorrecta.");
                 }
             }
         });
+
+        reservarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ReservaGUI().setVisible(true);
+            }
+        });
+
         panel1.add(adminButton);
+        panel1.add(reservarButton);
+
+        try
+
+        {
+            BufferedImage myPicture = ImageIO.read(new File("Ponchito.png"));
+            Image scaledImage = myPicture.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            JLabel picLabel = new JLabel(new ImageIcon(scaledImage));
+            panel1.add(picLabel);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
     }
 
+    // Reserva GUI
+    class ReservaGUI extends JFrame {
+        public ReservaGUI() {
+            setSize(300, 200);
+            setLayout(new FlowLayout());
+
+            JButton ReserButton = new JButton("Reservar");
+            // ReserButton.addActionListener(e -> CreateReserva());
+            add(ReserButton);
+
+            JButton VereservasButton = new JButton("Ver Reservas");
+            // VereservasButton.addActionListener(e -> VerReservas());
+            add(VereservasButton);
+        }
+    }
+
+    // Admin GUI
     class AdminGUI extends JFrame {
         public AdminGUI() {
             setSize(300, 200);
@@ -108,7 +153,7 @@ public class PonchitoGUI {
 
             añoRegistro = addField(newUserDialog, "Año de registro:");
 
-            JButton saveButton = new JButton("Save");
+            JButton saveButton = new JButton("Guardar");
             saveButton.addActionListener(e -> {
                 try {
                     boolean agenciaEmpleadoBool = Boolean.parseBoolean((String) agenciaEmpleado.getSelectedItem());
@@ -150,7 +195,7 @@ public class PonchitoGUI {
             JTextField clienteField = addField(reservaDialog, "Cliente:");
             JTextField circuitoField = addField(reservaDialog, "Circuito:");
 
-            JButton saveButton = new JButton("Save");
+            JButton saveButton = new JButton("Guardar");
             saveButton.addActionListener(e -> {
                 try {
                     boolean reservaAdded = ponchito.addReserva(
@@ -209,7 +254,7 @@ public class PonchitoGUI {
             editClientDialog.add(agenciaEmpleadoField);
             JTextField añoRegistroField = addField(editClientDialog, "Año de registro:");
 
-            JButton saveButton = new JButton("Save");
+            JButton saveButton = new JButton("Guardar");
             saveButton.addActionListener(e -> {
                 try {
                     boolean clientUpdated = ponchito.updateClient(
@@ -235,8 +280,10 @@ public class PonchitoGUI {
             editClientDialog.pack();
             editClientDialog.setVisible(true);
         }
+
     }
 
+    // Add a field to the dialog
     private JTextField addField(JDialog dialog, String labelText) {
         dialog.add(new JLabel(labelText));
         JTextField field = new JTextField();
@@ -244,6 +291,7 @@ public class PonchitoGUI {
         return field;
     }
 
+    // Create a button
     private JButton createButton(String text, String query) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 14)); // Set the font
@@ -263,6 +311,7 @@ public class PonchitoGUI {
         return button;
     }
 
+    //
     public static void main(String[] args) {
         JFrame frame = new JFrame("PonchitoGUI");
         PonchitoGUI ponchitoGUI = new PonchitoGUI();

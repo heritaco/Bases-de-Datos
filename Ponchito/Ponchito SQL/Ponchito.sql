@@ -74,6 +74,7 @@ CREATE TABLE FechaCircuito (
 CREATE TABLE Cliente (
     idCliente INT AUTO_INCREMENT PRIMARY KEY, 
     nombre CHAR(50),
+    contrasena CHAR(20),
     apellidoPaterno CHAR(50),
     apellidoMaterno CHAR(50),
     tipo CHAR(10) CHECK (tipo IN ('compañía', 'grupo', 'individual')),
@@ -85,6 +86,7 @@ CREATE TABLE Simulacion (
     numeroSimulacion INT AUTO_INCREMENT PRIMARY KEY,
     idCliente INT, 
     circuito CHAR(5),
+    numpersonas INT,
     FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente),
     FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
 );
@@ -93,6 +95,7 @@ CREATE TABLE Reservacion (
     numeroReservacion INT AUTO_INCREMENT PRIMARY KEY,
     idcliente INT,
     circuito CHAR(5),
+    numpersonas INT,
     FOREIGN KEY (idcliente) REFERENCES Cliente(idCliente),
     FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
 );
