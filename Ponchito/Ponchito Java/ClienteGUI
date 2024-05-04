@@ -51,7 +51,6 @@ public class ClienteGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Ejemplo de cómo iniciar la interfaz de cliente para un cliente específico
         String nombreCliente = "Nombre del Cliente"; // Nombre del cliente actualmente conectado
         SwingUtilities.invokeLater(() -> new ClienteGUI(nombreCliente));
     }
