@@ -1,0 +1,58 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class ClienteGUI extends JFrame {
+    private JTextArea textArea;
+    private Ponchito ponchito;
+    private String nombreCliente; // Nombre del cliente actualmente conectado
+
+    public ClienteGUI(String nombreCliente) {
+        super("Interfaz Cliente - Reservaciones de " + nombreCliente);
+        this.nombreCliente = nombreCliente;
+
+        textArea = new JTextArea(15, 30);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        JButton consultarReservacionesButton = new JButton("Consultar Reservaciones");
+        consultarReservacionesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                consultarReservaciones();
+            }
+        });
+
+        JPanel panel = new JPanel();
+        panel.add(scrollPane);
+        panel.add(consultarReservacionesButton);
+
+        add(panel);
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Cerrar solo esta ventana al salir
+        setLocationRelativeTo(null); // Centrar la ventana en la pantalla
+        setVisible(true);
+
+        try {
+            ponchito = new Ponchito();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void consultarReservaciones() {
+        try {
+            String query = "SELECT * FROM Reservaciones WHERE nombreCliente = '" + nombreCliente + "'";
+            String results = ponchito.query(query);
+            textArea.setText(results);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        // Ejemplo de cómo iniciar la interfaz de cliente para un cliente específico
+        String nombreCliente = "Nombre del Cliente"; // Nombre del cliente actualmente conectado
+        SwingUtilities.invokeLater(() -> new ClienteGUI(nombreCliente));
+    }
+}
