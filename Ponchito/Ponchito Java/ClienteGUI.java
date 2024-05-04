@@ -1,57 +1,64 @@
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 
-public class ClienteGUI extends JFrame {
-    private JTextArea textArea;
-    private Ponchito ponchito;
-    private String nombreCliente; // Nombre del cliente actualmente conectado
+public class InterfazCliente {
 
-    public ClienteGUI(String nombreCliente) {
-        super("Interfaz Cliente - Reservaciones de " + nombreCliente);
-        this.nombreCliente = nombreCliente;
+    static final String URL = "jdbc:mysql://localhost/";
+    static final String BD = "ponchito";
+    static final String USER = "root";
+    static final String PASSWD = "1234";
 
-        textArea = new JTextArea(15, 30);
-        JScrollPane scrollPane = new JScrollPane(textArea);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
 
-        JButton consultarReservacionesButton = new JButton("Consultar Reservaciones");
-        consultarReservacionesButton.addActionListener(new ActionListener() {
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("Consultar Reservaciones");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel panel = new JPanel();
+        JLabel label = new JLabel("Ingrese su nombre:");
+        JTextField textField = new JTextField(20);
+        JButton button = new JButton("Consultar Reservaciones");
+
+        button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                consultarReservaciones();
+                String nombreUsuario = textField.getText();
+                consultarReservaciones(nombreUsuario);
             }
         });
 
-        JPanel panel = new JPanel();
-        panel.add(scrollPane);
-        panel.add(consultarReservacionesButton);
+        panel.add(label);
+        panel.add(textField);
+        panel.add(button);
+        frame.add(panel);
 
-        add(panel);
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Cerrar solo esta ventana al salir
-        setLocationRelativeTo(null); // Centrar la ventana en la pantalla
-        setVisible(true);
-
-        try {
-            ponchito = new Ponchito();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    private void consultarReservaciones() {
-        try {
-            String query = "SELECT * FROM Reservaciones WHERE nombreCliente = '" + nombreCliente + "'";
-            String results = ponchito.query(query);
-            textArea.setText(results);
+    private static void consultarReservaciones(String nombreUsuario) {
+        try (Connection conn = DriverManager.getConnection(URL + BD, USER, PASSWD)) {
+            String sql = "SELECT * FROM Reservacion WHERE usuario = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, nombreUsuario);
+                try (ResultSet resultSet = stmt.executeQuery()) {
+                    System.out.println("Sus reservaciones:");
+                    while (resultSet.next()) {
+                        System.out.println("ID: " + resultSet.getInt("id") + ", Fecha: " + resultSet.getDate("fecha"));
+                    }
+                }
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-        String nombreCliente = "Nombre del Cliente"; // Nombre del cliente actualmente conectado
-        SwingUtilities.invokeLater(() -> new ClienteGUI(nombreCliente));
     }
 }
