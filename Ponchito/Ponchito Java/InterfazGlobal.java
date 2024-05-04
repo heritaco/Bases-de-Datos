@@ -1,109 +1,85 @@
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 
-public class InterfazGlobal extends JFrame {
-    private JButton publicButton, clienteButton, agenciaButton;
-    private JPanel panel;
-    private Ponchito ponchito;
+public class InterfazGlobal {
 
-    public InterfazGlobal() {
-        super("Interfaz Global - Ponchito Viajes");
+    static final String URL = "jdbc:mysql://localhost/";
+    static final String BD = "ponchito";
+    static final String USER = "root";
+    static final String PASSWD = "1234";
 
-        // Inicialización de la conexión a la base de datos
-        try {
-            ponchito = new Ponchito();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Creación de los botones para cada tipo de usuario
-        publicButton = new JButton("Interfaz Pública");
-        clienteButton = new JButton("Interfaz Cliente");
-        agenciaButton = new JButton("Interfaz Agencia");
-
-        // Agregar oyentes de eventos a los botones
-        publicButton.addActionListener(new ActionListener() {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void run() {
                 mostrarInterfazPublica();
             }
         });
+    }
+
+    private static void mostrarInterfazPublica() {
+        JFrame frame = new JFrame("Interfaz Pública");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel panel = new JPanel();
+        JButton clienteButton = new JButton("Acceder como Cliente");
+        JButton agenciaButton = new JButton("Acceder como Trabajador");
 
         clienteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mostrarInterfazCliente();
+                // Lógica para acceder como cliente
+                String palabraClave = JOptionPane.showInputDialog(null, "Ingrese su palabra clave:");
+                if (verificarCliente(palabraClave)) {
+                    mostrarInterfazCliente();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Palabra clave incorrecta. Acceso denegado.");
+                }
             }
         });
 
         agenciaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mostrarInterfazAgencia();
+                // Lógica para acceder como trabajador
+                String palabraClave = JOptionPane.showInputDialog(null, "Ingrese su palabra clave:");
+                if (verificarTrabajador(palabraClave)) {
+                    mostrarInterfazAgencia();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Palabra clave incorrecta. Acceso denegado.");
+                }
             }
         });
 
-        // Crear panel y agregar botones
-        panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 1));
-        panel.add(publicButton);
         panel.add(clienteButton);
         panel.add(agenciaButton);
+        frame.add(panel);
 
-        // Configuración de la ventana
-        add(panel);
-        setSize(300, 200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setVisible(true);
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    // Método para mostrar la interfaz pública
-    private void mostrarInterfazPublica() {
-        // Aquí debes implementar la lógica para mostrar la interfaz pública
-        JOptionPane.showMessageDialog(this, "Interfaz Pública");
+    private static boolean verificarCliente(String palabraClave) {
+        // Implementación de la lógica para verificar la palabra clave de un cliente en la base de datos
+        // Aquí se puede realizar una consulta a la base de datos para verificar si la palabra clave es válida
+        return "clavecliente".equals(palabraClave); // Solo para propósitos de demostración
     }
 
-    // Método para mostrar la interfaz de cliente
-    private void mostrarInterfazCliente() {
-        // Aquí debes implementar la lógica de autenticación de cliente
-        // Por ahora, simplemente abrimos la interfaz de cliente
-        String nombreCliente = JOptionPane.showInputDialog("Ingrese su nombre de usuario:");
-        if (nombreCliente != null && !nombreCliente.isEmpty()) {
-            new ClienteGUI(nombreCliente);
-        } else {
-            JOptionPane.showMessageDialog(this, "Nombre de cliente no válido", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    private static boolean verificarTrabajador(String palabraClave) {
+        // Implementación de la lógica para verificar la palabra clave de un trabajador en la base de datos
+        // Aquí se puede realizar una consulta a la base de datos para verificar si la palabra clave es válida
+        return "clavetrabajador".equals(palabraClave); // Solo para propósitos de demostración
     }
 
-    // Método para mostrar la interfaz de agencia
-    private void mostrarInterfazAgencia() {
-        // Aquí debes implementar la lógica de autenticación de la agencia
-        // Por ahora, simplemente abrimos la interfaz de agencia
-        String nombreAgencia = JOptionPane.showInputDialog("Ingrese su nombre de usuario:");
-        String clave = JOptionPane.showInputDialog("Ingrese su contraseña:");
-        if (nombreAgencia != null && !nombreAgencia.isEmpty() && clave != null && !clave.isEmpty()) {
-            if (autenticarAgencia(nombreAgencia, clave)) {
-                // Si la autenticación es exitosa, mostramos la interfaz de agencia
-                new AgenciaGUI();
-            } else {
-                JOptionPane.showMessageDialog(this, "Nombre de agencia o contraseña incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Nombre de agencia o contraseña no válidos", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    private static void mostrarInterfazCliente() {
+        // Implementación de la lógica para mostrar la interfaz de cliente
+        JOptionPane.showMessageDialog(null, "Acceso a la Interfaz de Cliente");
     }
 
-    // Método para autenticar a la agencia
-    private boolean autenticarAgencia(String nombreAgencia, String clave) {
-        // Aquí debes implementar la lógica de autenticación de la agencia
-        // Por ahora, simplemente verificamos si el nombre y la clave coinciden con algún usuario de la base de datos
-        return nombreAgencia.equals("nombreDeUsuario") && clave.equals("contraseña");
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(InterfazGlobal::new);
+    private static void mostrarInterfazAgencia() {
+        // Implementación de la lógica para mostrar la interfaz de agencia
+        JOptionPane.showMessageDialog(null, "Acceso a la Interfaz de Agencia");
     }
 }
