@@ -1,37 +1,29 @@
 import java.sql.*;
+import java.io.*;
 
 public class Ponchito {
 
 	Connection conn = null;
 	Statement stmt = null;
+	BufferedReader in = null;
 
 	static final String URL = "jdbc:mysql://localhost/";
 	static final String BD = "ponchito";
 	static final String USER = "root";
 	static final String PASSWD = "1234";
 
-	public Ponchito() {
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(URL + BD, USER, PASSWD);
-			conn.setAutoCommit(false);
-			stmt = conn.createStatement();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-	}
+	public Ponchito() throws SQLException, Exception {
+		// this will load the MySQL driver, each DB has its own driver
+		Class.forName("com.mysql.jdbc.Driver");
+		System.out.print("Connecting to the database... ");
 
-	public boolean checkCredentials(String id, String password) {
-		try {
-			PreparedStatement statement = conn.prepareStatement("SELECT * FROM clientes WHERE id = ? AND password = ?");
-			statement.setString(1, id);
-			statement.setString(2, password);
-			ResultSet resultSet = statement.executeQuery();
-			return resultSet.next();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
+		// setup the connection with the DB
+		conn = DriverManager.getConnection(URL + BD, USER, PASSWD);
+		System.out.println("connected\n\n");
+
+		conn.setAutoCommit(false); // inicio de la 1a transacción
+		stmt = conn.createStatement();
+		in = new BufferedReader(new InputStreamReader(System.in));
 	}
 
 	public String query(String statement) throws SQLException {
@@ -50,9 +42,87 @@ public class Ponchito {
 		return results.toString();
 	}
 
-	public void close() throws SQLException {
+	private void close() throws SQLException {
 		stmt.close();
 		conn.close();
+	}
+
+	private boolean menu() throws SQLException, IOException {
+
+		String statement;
+
+		System.out.println("\nNivel de aislamiento = " + conn.getTransactionIsolation() + "\n");
+		System.out.println("(6) Validar todas operaciones\n");
+		System.out.println("(7) Abortar todas las operaciones\n");
+		System.out.println("(8) Cambiar nivel de aislamiento\n");
+		System.out.println("(9) Salir\n\n");
+		System.out.print("Option: ");
+
+		switch (Integer.parseInt("0" + in.readLine())) {
+			case 6:
+				conn.commit(); // fin de la transacción e inicio de la siguiente
+				break;
+
+			case 7:
+				conn.rollback(); // fin de la transacción e inicio de la siguiente
+				break;
+
+			case 8:
+				System.out.println();
+
+				System.out.println(conn.TRANSACTION_NONE + " = TRANSACTION_NONE");
+				System.out.println(conn.TRANSACTION_READ_UNCOMMITTED + " = TRANSACTION_READ_UNCOMMITTED");
+				System.out.println(conn.TRANSACTION_READ_COMMITTED + " = TRANSACTION_READ_COMMITTED");
+				System.out.println(conn.TRANSACTION_REPEATABLE_READ + " = TRANSACTION_REPEATABLE_READ");
+				System.out.println(conn.TRANSACTION_SERIALIZABLE + " = TRANSACTION_SERIALIZABLE\n\n");
+
+				System.out.println("Nivel?");
+				conn.setTransactionIsolation(Integer.parseInt(in.readLine()));
+				break;
+
+			case 9:
+				return false;
+		}
+
+		return true;
+	}
+
+	public static void main(String arg[]) throws SQLException, Exception {
+
+		if (arg.length != 0) {
+
+			System.err.println("Use: java Ponchito");
+			System.exit(1);
+		}
+
+		Ponchito ponchito = new Ponchito();
+
+		while (true)
+
+			try {
+				if (!ponchito.menu())
+					break;
+
+			} catch (Exception e) {
+
+				System.err.println("failed");
+				e.printStackTrace(System.err);
+			}
+
+		ponchito.close();
+	}
+
+	public boolean checkCredentials(String id, String password) {
+		try {
+			PreparedStatement statement = conn.prepareStatement("SELECT * FROM clientes WHERE id = ? AND password = ?");
+			statement.setString(1, id);
+			statement.setString(2, password);
+			ResultSet resultSet = statement.executeQuery();
+			return resultSet.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public boolean addClient(String nombre, String apellidoPaterno, String apellidoMaterno,
