@@ -200,6 +200,10 @@ public class PonchitoGUI extends JFrame {
             JButton EditResButton = new JButton("Editar Reservas");
             EditResButton.addActionListener(e -> EditRes());
             add(EditResButton);
+
+            JButton Confsim = new JButton("Confirmar simulaciones");
+            Confsim.addActionListener(e -> EditRes());
+            add(Confsim);
         }
 
         private void EditRes() {
@@ -347,7 +351,7 @@ public class PonchitoGUI extends JFrame {
         private void EditClient() {
             JDialog editClientDialog = new JDialog();
             editClientDialog.setTitle("Editar Cliente");
-            editClientDialog.setLayout(new GridLayout(8, 2));
+            editClientDialog.setLayout(new GridLayout(9, 2));
 
             JTextField idField = addField(editClientDialog, "ID del cliente:");
             JTextField nombreField = addField(editClientDialog, "Nombre:");
@@ -360,6 +364,7 @@ public class PonchitoGUI extends JFrame {
             JCheckBox agenciaEmpleadoField = new JCheckBox("Agencia Empleado");
             editClientDialog.add(agenciaEmpleadoField);
             JTextField añoRegistroField = addField(editClientDialog, "Año de registro:");
+            JTextField contraseñaField = addField(editClientDialog, "Contraseña:");
 
             JButton saveButton = new JButton("Guardar");
             saveButton.addActionListener(e -> {
@@ -371,7 +376,8 @@ public class PonchitoGUI extends JFrame {
                             apellidoMaternoField.getText(),
                             (String) tipoField.getSelectedItem(),
                             agenciaEmpleadoField.isSelected(),
-                            Integer.parseInt(añoRegistroField.getText()));
+                            Integer.parseInt(añoRegistroField.getText()),
+                            contraseñaField.getText());
                     if (clientUpdated) {
                         JOptionPane.showMessageDialog(editClientDialog, "Cliente editado!");
                     } else {

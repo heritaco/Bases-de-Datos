@@ -162,8 +162,8 @@ public class Ponchito {
 	}
 
 	public boolean updateClient(int idCliente, String nombre, String apellidoPaterno, String apellidoMaterno,
-			String tipo, boolean agenciaEmpleado, int añoRegistro) {
-		String sql = "UPDATE Cliente SET nombre = ?, apellidoPaterno = ?, apellidoMaterno = ?, tipo = ?, agenciaEmpleado = ?, añoRegistro = ? WHERE idCliente = ?";
+			String tipo, boolean agenciaEmpleado, int añoRegistro, String contrasena) {
+		String sql = "UPDATE Cliente SET nombre = ?, apellidoPaterno = ?, apellidoMaterno = ?, tipo = ?, agenciaEmpleado = ?, añoRegistro = ?, contrasena = ? WHERE idCliente = ?";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, nombre);
@@ -172,7 +172,8 @@ public class Ponchito {
 			pstmt.setString(4, tipo);
 			pstmt.setBoolean(5, agenciaEmpleado);
 			pstmt.setInt(6, añoRegistro);
-			pstmt.setInt(7, idCliente);
+			pstmt.setInt(8, idCliente);
+			pstmt.setString(7, contrasena);
 			int rowsAffected = pstmt.executeUpdate();
 			conn.commit(); // Commit the transaction
 			return rowsAffected > 0;
