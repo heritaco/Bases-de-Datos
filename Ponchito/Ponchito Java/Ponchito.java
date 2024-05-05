@@ -56,8 +56,8 @@ public class Ponchito {
 	}
 
 	public boolean addClient(String nombre, String apellidoPaterno, String apellidoMaterno,
-			String tipo, boolean agenciaEmpleado, int añoRegistro) {
-		String sql = "INSERT INTO Cliente (nombre, apellidoPaterno, apellidoMaterno, tipo, agenciaEmpleado, añoRegistro) VALUES (?, ?, ?, ?, ?, ?)";
+			String tipo, boolean agenciaEmpleado, int añoRegistro, String contraseña) {
+		String sql = "INSERT INTO Cliente (nombre, apellidoPaterno, apellidoMaterno, tipo, agenciaEmpleado, añoRegistro, contrasena) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, nombre);
@@ -66,6 +66,7 @@ public class Ponchito {
 			pstmt.setString(4, tipo);
 			pstmt.setBoolean(5, agenciaEmpleado);
 			pstmt.setInt(6, añoRegistro);
+			pstmt.setString(7, contraseña);
 			int rowsAffected = pstmt.executeUpdate();
 			conn.commit(); // Commit the transaction
 			return rowsAffected > 0;

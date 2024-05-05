@@ -74,12 +74,12 @@ CREATE TABLE FechaCircuito (
 CREATE TABLE Cliente (
     idCliente INT AUTO_INCREMENT PRIMARY KEY, 
     nombre CHAR(50),
-    contrasena CHAR(20),
     apellidoPaterno CHAR(50),
     apellidoMaterno CHAR(50),
     tipo CHAR(10) CHECK (tipo IN ('compañía', 'grupo', 'individual')),
     agenciaEmpleado BOOLEAN,
-    añoRegistro INT
+    añoRegistro INT,
+    contrasena CHAR(20)
 );
 
 CREATE TABLE Simulacion (
