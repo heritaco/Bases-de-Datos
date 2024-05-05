@@ -6,8 +6,12 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 
-public class PonchitoGUI {
+public class PonchitoGUI extends JFrame {
     private JButton button0, button1, button2, button3, button4, button5;
     private JPanel panel1;
     private JTextArea textArea;
@@ -19,11 +23,24 @@ public class PonchitoGUI {
             circuitoField, idField;
     private JButton adminButton, reservarButton;
     private String adminPassword = "admin123";
+    private Image backgroundImage;
 
     // Constructor
     public PonchitoGUI() {
+        try {
+            backgroundImage = ImageIO.read(new File("Captura de pantalla 2024-05-04 232808.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        panel1 = new JPanel();
+        panel1 = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, null);
+            }
+        };
+
         textArea = new JTextArea(30, 30);
         panel1.add(textArea);
 
@@ -35,24 +52,19 @@ public class PonchitoGUI {
 
         try {
             ponchito = new Ponchito();
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             e.printStackTrace();
         }
 
-        button0 = createButton("Ciudades", "select * from ciudad");
-        button1 = createButton("Lugares a visitar", "select * from lugaravisitar");
-        button2 = createButton("Circuito", "select * from circuito");
-        button3 = createButton("Fecha circuito", "select * from fechacircuito");
-        button4 = createButton("Etapa", "select * from Etapa");
-        button5 = createButton("Hotel", "select * from hotel");
+        panel1.add(createButton("Ciudades", "select * from ciudad"));
+        panel1.add(createButton("Lugares a visitar", "select * from lugaravisitar"));
+        panel1.add(createButton("Circuito", "select * from circuito"));
+        panel1.add(createButton("Fecha circuito", "select * from fechacircuito"));
+        panel1.add(createButton("Etapa", "select * from Etapa"));
+        panel1.add(createButton("Hotel", "select * from hotel"));
 
-        panel1.add(button0);
-        panel1.add(button1);
-        panel1.add(button2);
-        panel1.add(button3);
-        panel1.add(button4);
-
-        panel1.add(button5);
         adminButton = new JButton("Admin");
         reservarButton = new JButton("Ingresar");
 
