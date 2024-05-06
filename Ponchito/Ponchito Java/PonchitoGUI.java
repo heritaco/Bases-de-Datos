@@ -4,31 +4,28 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
 
 public class PonchitoGUI extends JFrame {
-    private JButton button0, button1, button2, button3, button4, button5;
     private JPanel panel1;
     private JTextArea textArea;
     private Ponchito ponchito;
     private JLabel welcomeLabel;
     private JDialog newUserDialog;
-    private JTextField nombreField, apellidopField, apellidomField, añoRegistro, contraseñaField, clienteField,
-            fecField,
-            circuitoField, idField;
+    private JTextField numField, nombreField, apellidopField, apellidomField, añoRegistro, contraseñaField,
+            clienteField, circuitoField;
     private JButton adminButton, reservarButton;
     private String adminPassword = "admin123";
     private Image backgroundImage;
+    private int idcliente;
 
     // Constructor
     public PonchitoGUI() {
         try {
-            backgroundImage = ImageIO.read(new File("Captura de pantalla 2024-05-04 232808.png"));
+            backgroundImage = ImageIO.read(new File("landscape-photography-of-snowy-mountain.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,19 +77,22 @@ public class PonchitoGUI extends JFrame {
             }
         });
 
+        // Define idcliente as an instance variable at the top of your class
+
+        // Then, inside your actionPerformed method, you can assign a value to it
         reservarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String idcliente = JOptionPane.showInputDialog("IDCLIENTE:");
-                if (adminPassword.equals(idcliente)) {
+                try {
+                    idcliente = Integer.parseInt(JOptionPane.showInputDialog("IDCLIENTE:"));
                     String password = JOptionPane.showInputDialog("Contraseña:");
-                    if (adminPassword.equals(password)) {
-                        new ReservaGUI().setVisible(true);
+                    if (ponchito.checkClientCredentials(idcliente, password)) {
+                        new ClienteGUI().setVisible(true);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Contraseña incorrecta.");
+                        JOptionPane.showMessageDialog(null, "ID o contraseña incorrecta.");
                     }
-                } else {
-                    JOptionPane.showMessageDialog(null, "No se encontro el ID.");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Por favor, ingrese un ID válido.");
                 }
             }
         });
@@ -103,7 +103,7 @@ public class PonchitoGUI extends JFrame {
         try
 
         {
-            BufferedImage myPicture = ImageIO.read(new File("Ponchito.png"));
+            BufferedImage myPicture = ImageIO.read(new File("Ponchito-Isotipo.png"));
             Image scaledImage = myPicture.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
             JLabel picLabel = new JLabel(new ImageIcon(scaledImage));
             panel1.add(picLabel);
@@ -115,56 +115,92 @@ public class PonchitoGUI extends JFrame {
 
     // Reserva GUI esto es lo que falta
     // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    class ReservaGUI extends JFrame {
-        public ReservaGUI() {
+    class ClienteGUI extends JFrame {
+        public ClienteGUI() {
             setSize(300, 200);
             setLayout(new FlowLayout());
 
-            JButton ReserButton = new JButton("Reservar");
-            ReserButton.addActionListener(e -> CreateReserva());
+            JButton ReserButton = new JButton("Hacer simulación");
+            ReserButton.addActionListener(e -> CreateSim());
             add(ReserButton);
 
             JButton VereservasButton = new JButton("Ver Reservas");
             VereservasButton.addActionListener(e -> VerReservas());
             add(VereservasButton);
+
+            JButton Versim = new JButton("Ver Simulaciones");
+            Versim.addActionListener(e -> VerSimulacion());
+            add(Versim);
         }
 
-        private void CreateReserva() {
+        // Ya esta
+        private void CreateSim() {
             JDialog reservaDialog = new JDialog();
-            reservaDialog.setTitle("Nueva Reserva");
+            reservaDialog.setTitle("Nueva simulación");
             reservaDialog.setLayout(new GridLayout(5, 2));
 
-            JTextField circuitoField = addField(reservaDialog, "Circuito:");
-            JTextField fechaField = addField(reservaDialog, "fecha:");
+            JTextField idfechacircuito = addField(reservaDialog, "ID Fecha Circuito:");
+            JTextField numpersonas = addField(reservaDialog, "Num Personas:");
 
             JButton saveButton = new JButton("Guardar");
             saveButton.addActionListener(e -> {
                 try {
-                    boolean reservaAdded = ponchito.addReserva(
-                            Integer.parseInt(clienteField.getText()), //
-                            circuitoField.getText());
+                    int numeroSimulacion = ponchito.addSimulation(
+                            idcliente,
+                            Integer.parseInt(idfechacircuito.getText()),
+                            Integer.parseInt(numpersonas.getText()));
 
-                    if (reservaAdded) {
-                        JOptionPane.showMessageDialog(null, "Reserva añadida correctamente!");
-                    } else {
-                        JOptionPane.showMessageDialog(null,
-                                "Ha ocurrido un error al añadir la reserva. Por favor, inténtelo de nuevo.");
-                    }
+                    JOptionPane.showMessageDialog(null,
+                            "Reserva añadida correctamente! Numero de simulacion: " + numeroSimulacion);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             });
-
-            reservaDialog.add(saveButton); // Add the save button to the dialog
-            reservaDialog.pack(); // Adjust the dialog size to its contents
-            reservaDialog.setVisible(true); // Make the dialog visible
+            reservaDialog.add(saveButton);
+            reservaDialog.pack();
+            reservaDialog.setVisible(true);
         }
 
         private void VerReservas() {
             try {
-                String results = ponchito.query("select * from reserva");
-                textArea.setText(results);
+                PreparedStatement statement = ponchito
+                        .prepareStatement("SELECT * FROM Reservacion WHERE idcliente = ?");
+                statement.setInt(1, idcliente);
+                ResultSet resultSet = statement.executeQuery();
+
+                StringBuilder results = new StringBuilder();
+                while (resultSet.next()) {
+                    results.append("numeroReservacion: ").append(resultSet.getInt("numeroReservacion"))
+                            .append(", idcliente: ").append(resultSet.getInt("idcliente"))
+                            .append(", idfechacircuito: ").append(resultSet.getInt("idfechacircuito"))
+                            .append(", numpersonas: ").append(resultSet.getInt("numpersonas"))
+                            .append("\n");
+                }
+
+                System.out.println("Reservations: " + results.toString()); // Print to console for debugging
+                textArea.setText(results.toString());
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private void VerSimulacion() {
+            try {
+                PreparedStatement statement = ponchito.prepareStatement("SELECT * FROM Simulacion WHERE idCliente = ?");
+                statement.setInt(1, idcliente);
+                ResultSet resultSet = statement.executeQuery();
+
+                StringBuilder results = new StringBuilder();
+                while (resultSet.next()) {
+                    results.append("numeroSimulacion: ").append(resultSet.getInt("numeroSimulacion"))
+                            .append(", idCliente: ").append(resultSet.getInt("idCliente"))
+                            .append(", idfechacircuito: ").append(resultSet.getInt("idfechacircuito"))
+                            .append(", numpersonas: ").append(resultSet.getInt("numpersonas"))
+                            .append("\n");
+                }
+
+                textArea.setText(results.toString());
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -176,69 +212,82 @@ public class PonchitoGUI extends JFrame {
         public AdminGUI() {
             setSize(300, 400);
             setLayout(new FlowLayout());
-
+            // ya esta
             JButton createUserButton = new JButton("Crear Cliente");
             createUserButton.addActionListener(e -> CreateUser());
             add(createUserButton);
-
+            // falta
             JButton ReserButton = new JButton("Reservar");
             ReserButton.addActionListener(e -> CreateReserva());
             add(ReserButton);
-
+            // ya esta
             JButton SeeClientsButton = new JButton("Ver Clientes");
             SeeClientsButton.addActionListener(e -> VerClientes());
             add(SeeClientsButton);
-
+            // ya esta
             JButton VereservasButton = new JButton("Ver Reservas");
             VereservasButton.addActionListener(e -> VerReservas());
             add(VereservasButton);
-
+            // ya esta
             JButton EditClientButton = new JButton("Editar Clientes");
             EditClientButton.addActionListener(e -> EditClient());
             add(EditClientButton);
-
+            // ya esta
             JButton EditResButton = new JButton("Editar Reservas");
             EditResButton.addActionListener(e -> EditRes());
             add(EditResButton);
-
-            JButton Confsim = new JButton("Confirmar simulaciones");
-            Confsim.addActionListener(e -> EditRes());
-            add(Confsim);
+            // ya esta
+            JButton versim = new JButton("Ver simulaciones");
+            versim.addActionListener(e -> VerSim());
+            add(versim);
         }
 
+        // Ya esta
+        private void VerSim() {
+            try {
+                String results = ponchito.query("select * from simulacion");
+                textArea.setText(results);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // Ya esta
         private void EditRes() {
             JDialog editResDialog = new JDialog();
             editResDialog.setTitle("Editar Reserva");
             editResDialog.setLayout(new GridLayout(8, 2));
 
             JTextField idField = addField(editResDialog, "ID de la reserva:");
-            JTextField clienteField = addField(editResDialog, "Cliente:");
-            JTextField circuitoField = addField(editResDialog, "Circuito:");
-            JTextField fechaField = addField(editResDialog, "fecha:");
+            JTextField clienteField = addField(editResDialog, "ID Cliente:");
+            JTextField circuitoField = addField(editResDialog, "ID Circuito:");
+            JTextField numField = addField(editResDialog, "Num personas:");
 
             JButton saveButton = new JButton("Guardar");
-            // saveButton.addActionListener(e -> {
-            // try {
-            // boolean resUpdated = ponchito.updateReserva(
-            // Integer.parseInt(idField.getText()),
-            // Integer.parseInt(clienteField.getText()),
-            // circuitoField.getText());
-            // if (resUpdated) {
-            // JOptionPane.showMessageDialog(editResDialog, "Reserva editada!");
-            // } else {
-            // JOptionPane.showMessageDialog(editResDialog, "Hay algo mal.", "Error",
-            // JOptionPane.ERROR_MESSAGE);
-            // }
-            // } catch (NumberFormatException ex) {
-            // JOptionPane.showMessageDialog(editResDialog, "Hay algo mal.", "Error",
-            // JOptionPane.ERROR_MESSAGE);
-            // }
-            // });
+            saveButton.addActionListener(e -> {
+                try {
+                    boolean resUpdated = ponchito.updateReserva(
+                            Integer.parseInt(idField.getText()),
+                            Integer.parseInt(clienteField.getText()),
+                            Integer.parseInt(circuitoField.getText()),
+                            Integer.parseInt(numField.getText()));
+                    if (resUpdated) {
+                        JOptionPane.showMessageDialog(editResDialog, "Reserva editada!");
+                    } else {
+                        JOptionPane.showMessageDialog(editResDialog, "Hay algo mal.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(editResDialog, "Hay algo mal.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            });
             editResDialog.add(saveButton);
             editResDialog.pack();
             editResDialog.setVisible(true);
         }
 
+        // Ya esta
         private void CreateUser() {
             newUserDialog = new JDialog();
             newUserDialog.setTitle("Nuevo Cliente");
@@ -300,19 +349,19 @@ public class PonchitoGUI extends JFrame {
         private void CreateReserva() {
             JDialog reservaDialog = new JDialog();
             reservaDialog.setTitle("Nueva Reserva");
-            reservaDialog.setLayout(new GridLayout(5, 2));
+            reservaDialog.setLayout(new GridLayout(4, 2));
 
-            JTextField clienteField = addField(reservaDialog, "Cliente:");
-            JTextField circuitoField = addField(reservaDialog, "Circuito:");
-            JTextField fechaField = addField(reservaDialog, "fecha:");
+            clienteField = addField(reservaDialog, "ID Cliente:");
+            circuitoField = addField(reservaDialog, "ID Fecha Circuito:");
+            numField = addField(reservaDialog, "Número de personas:");
 
             JButton saveButton = new JButton("Guardar");
             saveButton.addActionListener(e -> {
                 try {
                     boolean reservaAdded = ponchito.addReserva(
-                            Integer.parseInt(clienteField.getText()), //
-                            circuitoField.getText());
-
+                            Integer.parseInt(clienteField.getText()),
+                            Integer.parseInt(circuitoField.getText()),
+                            Integer.parseInt(numField.getText()));
                     if (reservaAdded) {
                         JOptionPane.showMessageDialog(null, "Reserva añadida correctamente!");
                     } else {
@@ -341,7 +390,7 @@ public class PonchitoGUI extends JFrame {
 
         private void VerReservas() {
             try {
-                String results = ponchito.query("select * from reserva");
+                String results = ponchito.query("select * from reservacion");
                 textArea.setText(results);
             } catch (SQLException ex) {
                 ex.printStackTrace();

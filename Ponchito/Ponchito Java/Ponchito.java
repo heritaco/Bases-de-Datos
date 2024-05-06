@@ -48,26 +48,14 @@ public class Ponchito {
 	}
 
 	private boolean menu() throws SQLException, IOException {
-
-		String statement;
-
 		System.out.println("\nNivel de aislamiento = " + conn.getTransactionIsolation() + "\n");
-		System.out.println("(6) Validar todas operaciones\n");
-		System.out.println("(7) Abortar todas las operaciones\n");
-		System.out.println("(8) Cambiar nivel de aislamiento\n");
-		System.out.println("(9) Salir\n\n");
-		System.out.print("Option: ");
+		System.out.println("(1) Cambiar nivel de aislamiento\n");
+		System.out.println("(2) Salir");
+		System.out.print("Option:");
 
 		switch (Integer.parseInt("0" + in.readLine())) {
-			case 6:
-				conn.commit(); // fin de la transacción e inicio de la siguiente
-				break;
 
-			case 7:
-				conn.rollback(); // fin de la transacción e inicio de la siguiente
-				break;
-
-			case 8:
+			case 1:
 				System.out.println();
 
 				System.out.println(conn.TRANSACTION_NONE + " = TRANSACTION_NONE");
@@ -76,11 +64,12 @@ public class Ponchito {
 				System.out.println(conn.TRANSACTION_REPEATABLE_READ + " = TRANSACTION_REPEATABLE_READ");
 				System.out.println(conn.TRANSACTION_SERIALIZABLE + " = TRANSACTION_SERIALIZABLE\n\n");
 
-				System.out.println("Nivel?");
+				System.out.println("Nivel de aislamiento actual = " + conn.getTransactionIsolation() + "\n");
+				System.out.print("Nuevo nivel de aislamiento: ");
 				conn.setTransactionIsolation(Integer.parseInt(in.readLine()));
 				break;
 
-			case 9:
+			case 2:
 				return false;
 		}
 
@@ -112,10 +101,11 @@ public class Ponchito {
 		ponchito.close();
 	}
 
-	public boolean checkCredentials(String id, String password) {
+	public boolean checkClientCredentials(int idcliente, String password) {
 		try {
-			PreparedStatement statement = conn.prepareStatement("SELECT * FROM clientes WHERE id = ? AND password = ?");
-			statement.setString(1, id);
+			PreparedStatement statement = conn
+					.prepareStatement("SELECT * FROM Cliente WHERE idCliente = ? AND Contrasena = ?");
+			statement.setInt(1, idcliente);
 			statement.setString(2, password);
 			ResultSet resultSet = statement.executeQuery();
 			return resultSet.next();
@@ -146,18 +136,35 @@ public class Ponchito {
 		}
 	}
 
-	public boolean addReserva(Integer idcliente, String circuito) {
-		String sql = "INSERT INTO Cliente (idcliente, circuito) VALUES (?, ?)";
+	public boolean addReserva(Integer idcliente, Integer idfechacircuito, Integer numpersonas) {
+		String sql = "INSERT INTO Reservacion (idcliente, idfechacircuito, numpersonas) VALUES (?, ?, ?)";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, idcliente);
-			pstmt.setString(2, circuito);
+			pstmt.setInt(2, idfechacircuito);
+			pstmt.setInt(3, numpersonas);
 			int rowsAffected = pstmt.executeUpdate();
 			conn.commit(); // Commit the transaction
 			return rowsAffected > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
+		}
+	}
+
+	public int addSimulation(int idcliente, int idfechacircuito, int numpersonas) throws SQLException {
+		String query = "INSERT INTO Simulacion (idCliente, idfechacircuito, numpersonas) VALUES (?, ?, ?)";
+		PreparedStatement statement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		statement.setInt(1, idcliente);
+		statement.setInt(2, idfechacircuito);
+		statement.setInt(3, numpersonas);
+		statement.executeUpdate();
+
+		ResultSet generatedKeys = statement.getGeneratedKeys();
+		if (generatedKeys.next()) {
+			return generatedKeys.getInt(1);
+		} else {
+			throw new SQLException("No se pudo hacer la simulación.");
 		}
 	}
 
@@ -181,6 +188,27 @@ public class Ponchito {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public boolean updateReserva(int idReservacion, Integer idcliente, Integer idfechacircuito, Integer numpersonas) {
+		String sql = "UPDATE Reservacion SET idcliente = ?, idfechacircuito = ?, numpersonas = ? WHERE idReservacion = ?";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, idcliente);
+			pstmt.setInt(2, idfechacircuito);
+			pstmt.setInt(3, numpersonas);
+			pstmt.setInt(4, idReservacion);
+			int rowsAffected = pstmt.executeUpdate();
+			conn.commit(); // Commit the transaction
+			return rowsAffected > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public PreparedStatement prepareStatement(String sql) throws SQLException {
+		return conn.prepareStatement(sql);
 	}
 
 }

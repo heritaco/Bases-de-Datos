@@ -1,10 +1,10 @@
-DROP SCHEMA `ponchito`;
+-- DROP SCHEMA `ponchito`;
 
 CREATE SCHEMA `ponchito`;
 
 USE `ponchito`;
 
-CREATE TABLE Ciudad (
+CREATE TABLE Ciudad ( -- puede haber ciudades que se llaman igual en diferentes paises
     nombre CHAR(12),
     país CHAR(12),
     PRIMARY KEY (nombre, país)
@@ -48,6 +48,7 @@ CREATE TABLE Circuito (
     FOREIGN KEY (ciudadLlegada, paísLlegada) REFERENCES Ciudad(nombre, país)
 );
 
+
 CREATE TABLE Etapa (
     identificador CHAR(5),
     orden INT,
@@ -62,10 +63,10 @@ CREATE TABLE Etapa (
 );
 
 CREATE TABLE FechaCircuito (
+    idfechacircuito INT AUTO_INCREMENT PRIMARY KEY,
     identificador CHAR(5),
     fechaSalida DATE,
     nbPersonas INT,
-    PRIMARY KEY (identificador, fechaSalida, nbpersonas),
     FOREIGN KEY (identificador) REFERENCES Circuito(identificador)
 );
 
@@ -85,21 +86,20 @@ CREATE TABLE Cliente (
 CREATE TABLE Simulacion (
     numeroSimulacion INT AUTO_INCREMENT PRIMARY KEY,
     idCliente INT, 
-    circuito CHAR(5),
+    idfechacircuito INT,
     numpersonas INT,
     FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente),
-    FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
+    FOREIGN KEY (idfechacircuito) REFERENCES FechaCircuito(idfechacircuito)
 );
 
 CREATE TABLE Reservacion (
     numeroReservacion INT AUTO_INCREMENT PRIMARY KEY,
     idcliente INT,
-    circuito CHAR(5),
+    idfechacircuito INT,
     numpersonas INT,
     FOREIGN KEY (idcliente) REFERENCES Cliente(idCliente),
-    FOREIGN KEY (circuito) REFERENCES Circuito(identificador)
+    FOREIGN KEY (idfechacircuito) REFERENCES FechaCircuito(idfechacircuito)
 );
-
 
 -- Delete simulations after two days
 CREATE EVENT delete_old_simulations
@@ -107,8 +107,29 @@ ON SCHEDULE EVERY 1 DAY
 STARTS NOW()
 DO
   DELETE FROM Simulacion
-  WHERE created_at < NOW() - INTERVAL 2 DAY;
+  WHERE created_at < NOW() - INTERVAL 2 DAY;
 
+DELIMITER //
+
+CREATE TRIGGER update_nbPersonas
+AFTER INSERT ON Reservacion
+FOR EACH ROW
+BEGIN
+    DECLARE personas INT;
+    
+    -- Obtener el número de personas de la fecha del circuito
+    SELECT nbPersonas INTO personas
+    FROM FechaCircuito
+    WHERE idfechacircuito = NEW.idfechacircuito;
+
+    -- Decrementar el número de personas en la fecha del circuito
+    UPDATE FechaCircuito
+    SET nbPersonas = personas - NEW.numpersonas
+    WHERE idfechacircuito = NEW.idfechacircuito;
+END;
+//
+
+DELIMITER ;
 
 
 
