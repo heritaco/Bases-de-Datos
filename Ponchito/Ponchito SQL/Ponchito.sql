@@ -122,10 +122,15 @@ BEGIN
     FROM FechaCircuito
     WHERE idfechacircuito = NEW.idfechacircuito;
 
-    -- Decrementar el número de personas en la fecha del circuito
-    UPDATE FechaCircuito
-    SET nbPersonas = personas - NEW.numpersonas
-    WHERE idfechacircuito = NEW.idfechacircuito;
+    IF personas - NEW.numpersonas >= 0 THEN
+        -- Decrementar el número de personas en la fecha del circuito
+        UPDATE FechaCircuito
+        SET nbPersonas = personas - NEW.numpersonas
+        WHERE idfechacircuito = NEW.idfechacircuito;
+    ELSE
+
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No quedan lugares';
+    END IF;
 END;
 //
 
@@ -808,4 +813,68 @@ INSERT INTO Etapa (identificador, orden, nombreLugar, ciudad, país, duración) 
 ('CIR01', 1, 'Bellas Artes', 'CDMX', 'México', 1),
 ('CIR01', 2, 'Playa delfin', 'Cancún', 'México',3),
 ('CIR01', 3, 'Cabañas', 'Guadalajara', 'México',1),
-('CIR01', 4, 'Fundidora', 'Monterrey', 'México',1);
+('CIR01', 4, 'Fundidora', 'Monterrey', 'México',1),
+
+('CIR02', 1, 'Central Park', 'Nueva York', 'EEUU', 2),
+('CIR02', 2, 'Holly Blvd', 'Los Ángeles', 'EEUU', 3),
+('CIR02', 3, 'Millennium', 'Chicago', 'EEUU', 3),
+('CIR02', 4, 'Space Center', 'Houston', 'EEUU', 1),
+
+('CIR03', 1, 'H Maple', 'Toronto', 'Canadá', 2),
+('CIR03', 2, 'H Mont', 'Montreal', 'Canadá', 3),
+('CIR03', 3, 'H Lions', 'Vancouver', 'Canadá', 3),
+('CIR03', 4, 'H Vieux', 'Quebec', 'Canadá', 1),
+
+('CIR04', 1, 'H Gran Vía', 'Madrid', 'España', 2),
+('CIR04', 2, 'H Ramblas', 'Barcelona', 'España', 3),
+('CIR04', 3, 'H Paella', 'Valencia', 'España', 3),
+('CIR04', 4, 'H Flamenco', 'Sevilla', 'España', 1),
+
+('CIR05', 1, 'H Eiffel', 'París', 'Francia', 2),
+('CIR05', 2, 'H Vieux Port', 'Marsella', 'Francia', 3),
+('CIR05', 3, 'H Bellecour', 'Lyon', 'Francia', 3),
+('CIR05', 4, 'H Promen', 'Niza', 'Francia', 1),
+
+('CIR06', 1, 'H Coliseo', 'Roma', 'Italia', 2),
+('CIR06', 2, 'H Duomo', 'Milán', 'Italia', 3),
+('CIR06', 3, 'H Vesuvio', 'Nápoles', 'Italia', 3),
+('CIR06', 4, 'H Vecchio', 'Florencia', 'Italia', 1),
+
+('CIR07', 1, 'H Brandeb', 'Berlín', 'Alemania', 2),
+('CIR07', 2, 'H Marienpl', 'Múnich', 'Alemania', 3),
+('CIR07', 3, 'H Hamburgo', 'Hamburgo', 'Alemania', 3),
+('CIR07', 4, 'H Römerberg', 'Fráncfort', 'Alemania', 1),
+
+('CIR08', 1, 'H Shibuya', 'Tokio', 'Japón', 2),
+('CIR08', 2, 'H Kinkakuji', 'Kioto', 'Japón', 3),
+('CIR08', 3, 'H Dotonbori', 'Osaka', 'Japón', 3),
+('CIR08', 4, 'HH', 'Hiroshima', 'Japón', 1),
+
+('CIR08', 1, 'H Shibuya', 'Tokio', 'Japón', 2),
+('CIR08', 2, 'H Kinkakuji', 'Kioto', 'Japón', 3),
+('CIR08', 3, 'H Dotonbori', 'Osaka', 'Japón', 3),
+('CIR08', 4, 'HH', 'Hiroshima', 'Japón', 1),
+
+('CIR09', 1, 'H Pekín', 'Pekín', 'China', 2),
+('CIR09', 2, 'H El Bund', 'Shanghái', 'China', 3),
+('CIR09', 3, 'H Harbour', 'Hong Kong', 'China', 3),
+('CIR09', 4, 'H Guangzhou', 'Cantón', 'China', 1),
+
+('CIR10', 1, 'H Wat Phra', 'Bangkok', 'Tailandia', 2),
+('CIR10', 2, 'H Saduak', 'Ratchaburi', 'Tailandia', 3),
+('CIR10', 3, 'H Phimai', 'Ratchasima', 'Tailandia', 3),
+
+('CIR11', 1, 'H Tango', 'Buenos Aires', 'Argentina', 2),
+('CIR11', 2, 'H Chateau', 'Córdoba', 'Argentina', 3),
+('CIR11', 3, 'H Bandera', 'Rosario', 'Argentina', 3),
+('CIR11', 4, 'H Indep', 'Mendoza', 'Argentina', 1),
+
+('CIR12', 1, 'H Ipanema', 'Río', 'Brasil', 2),
+('CIR12', 2, 'H Paulista', 'São Paulo', 'Brasil', 3),
+('CIR12', 3, 'H Praça', 'Brasilia', 'Brasil', 3),
+('CIR12', 4, 'H Pelourinho', 'Salvador', 'Brasil', 1),
+
+('CIR13', 1, 'H Miraflores', 'Lima', 'Perú', 2),
+('CIR13', 2, 'H Plaza', 'Cusco', 'Perú', 3),
+('CIR13', 3, 'H Armas', 'Arequipa', 'Perú', 3),
+('CIR13', 4, 'H Arepa', 'Trujillo', 'Perú', 1);
