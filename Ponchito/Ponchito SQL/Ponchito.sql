@@ -813,9 +813,4 @@ INSERT INTO Etapa (identificador, orden, nombreLugar, ciudad, país, duración) 
 ('CIR01', 1, 'Bellas Artes', 'CDMX', 'México', 1),
 ('CIR01', 2, 'Playa delfin', 'Cancún', 'México',3),
 ('CIR01', 3, 'Cabañas', 'Guadalajara', 'México',1),
-('CIR01', 4, 'Fundidora', 'Monterrey', 'México',1),
-
-('CIR02', 1, 'Central Park', 'Nueva York', 'EEUU', 2),
-('CIR02', 2, 'Holly Blvd', 'Los Ángeles', 'EEUU', 3),
-('CIR02', 3, 'Millennium', 'Chicago', 'EEUU', 3),
-('CIR02', 4, 'Space Center', 'Houston', 'EEUU', 1);
+('CIR01', 4, 'Fundidora', 'Monterrey', 'México',1);

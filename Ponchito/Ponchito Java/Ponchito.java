@@ -114,7 +114,7 @@ public class Ponchito {
 			return false;
 		}
 	}
-
+	
 	public boolean addClient(String nombre, String apellidoPaterno, String apellidoMaterno,
 			String tipo, boolean agenciaEmpleado, int añoRegistro, String contraseña) {
 		String sql = "INSERT INTO Cliente (nombre, apellidoPaterno, apellidoMaterno, tipo, agenciaEmpleado, añoRegistro, contrasena) VALUES (?, ?, ?, ?, ?, ?, ?)";
